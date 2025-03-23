@@ -1,0 +1,2 @@
+webserver_nginx_port: 80
+webserver_nginx_worker_processes: 4

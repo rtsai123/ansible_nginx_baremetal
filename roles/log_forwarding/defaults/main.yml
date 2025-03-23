@@ -1,0 +1,5 @@
+---
+log_forwarding:
+  loki_url: "http://test.com:3100/loki/api/v1/push"
+  positions_dir: /var/lib/promtail
+  positions_file: /var/lib/promtail/positions.yaml

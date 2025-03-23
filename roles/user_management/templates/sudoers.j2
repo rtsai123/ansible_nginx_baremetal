@@ -1,0 +1,7 @@
+{% if user.sudo %}
+{{ user.name }} ALL=(ALL) NOPASSWD:ALL
+{% elif user.nopasswd_reboot %}
+{{ user.name }} ALL=(ALL) NOPASSWD: /sbin/reboot
+{% else %}
+# No sudo privileges granted
+{% endif %}

@@ -1,0 +1,9 @@
+- name: Provision Ubuntu 24.04 Bare Metal Server
+  hosts: "{{ target_hosts | default('all') }}"
+  become: true
+  roles:
+    - system
+    - user_management
+    - webserver
+    - log_forwarding
+    - firewall

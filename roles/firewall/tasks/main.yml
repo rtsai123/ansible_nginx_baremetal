@@ -1,0 +1,13 @@
+- name: Allow required ports in UFW
+  community.general.ufw:
+    rule: allow
+    to_port: "{{ item }}"
+    proto: tcp
+  loop: "{{ firewall_allowed_ports }}"
+  tags: [firewall, ufw]
+
+- name: Enable UFW with default policy
+  community.general.ufw:
+    state: enabled
+    policy: "{{ firewall_default_policy }}"
+  tags: [firewall, ufw]

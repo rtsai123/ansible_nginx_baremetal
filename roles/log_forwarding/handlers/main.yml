@@ -1,0 +1,5 @@
+- name: Enable and start promtail
+  ansible.builtin.systemd:
+    name: promtail
+    enabled: true
+    state: started

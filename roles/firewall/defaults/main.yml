@@ -1,0 +1,7 @@
+# Default ports to allow
+firewall_allowed_ports:
+  - 22   # SSH
+  - 80   # HTTP
+
+# UFW default policy
+firewall_default_policy: allow

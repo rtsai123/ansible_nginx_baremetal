@@ -1,0 +1,64 @@
+---
+- name: Install required dependencies
+  ansible.builtin.apt:
+    name: ["curl", "gpg"]
+    state: present
+    update_cache: true
+  tags: [log_forwarding, dependencies]
+
+- name: Wait for unattended-upgrades to finish
+  ansible.builtin.shell: |
+    while fuser /var/lib/dpkg/lock-frontend >/dev/null 2>&1; do
+      echo "Waiting for apt lock to be released..."
+      sleep 5
+    done
+  changed_when: false
+  tags: [log_forwarding, wait_for_upgrades]
+
+- name: Ensure CA certificates are up to date
+  ansible.builtin.apt:
+    name: ca-certificates
+    state: present
+    update_cache: true
+  tags: [log_forwarding, ca_cert]
+
+- name: Download Grafana GPG key in ASCII format
+  ansible.builtin.get_url:
+    url: https://apt.grafana.com/gpg.key
+    dest: /tmp/grafana.asc
+    mode: '0644'
+  tags: [log_forwarding, gpg_ascii]
+
+- name: Convert Grafana GPG key to binary format
+  ansible.builtin.command: >
+    gpg --dearmor -o /etc/apt/keyrings/grafana.gpg /tmp/grafana.asc
+  args:
+    creates: /etc/apt/keyrings/grafana.gpg
+  tags: [log_forwarding, gpg_binary]
+
+- name: Add Grafana APT repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/grafana.gpg] https://apt.grafana.com stable main"
+    state: present
+    filename: grafana
+  tags: [log_forwarding, add_grafana_apt]
+
+- name: Update APT cache
+  ansible.builtin.apt:
+    update_cache: true
+  tags: [log_forwarding, update_apt_cache]
+
+- name: Ensure promtail group exists
+  ansible.builtin.group:
+    name: promtail
+    system: yes
+  tags: [log_forwarding]
+
+- name: Ensure promtail user exists
+  ansible.builtin.user:
+    name: promtail
+    group: promtail
+    system: yes
+    shell: /usr/sbin/nologin
+    create_home: no
+  tags: [log_forwarding]

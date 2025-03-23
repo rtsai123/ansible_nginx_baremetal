@@ -1,0 +1,27 @@
+---
+log_forwarding:
+  loki_url: "http://10.0.2.2:3100/loki/api/v1/push"
+  positions_dir: /var/lib/promtail
+  positions_file: /var/lib/promtail/positions.yaml
+
+user_management_users:
+  - name: devops
+    sudo: true
+    ssh_key: "~/.ssh/id_rsa.pub"
+  - name: bob
+    sudo: false
+    nopasswd_reboot: true
+
+sysctl_settings:
+  net.ipv4.ip_forward: 0
+  net.core.somaxconn: 2048
+  vm.swappiness: 10
+
+webserver_nginx_port: 80
+webserver_nginx_worker_processes: 4
+
+firewall_allowed_ports:
+  - 22
+  - 443
+
+firewall_default_policy: deny

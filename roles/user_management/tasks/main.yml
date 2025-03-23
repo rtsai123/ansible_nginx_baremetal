@@ -1,0 +1,50 @@
+---
+- name: Ensure user_management_users exist
+  ansible.builtin.user:
+    name: "{{ item.name }}"
+    shell: /bin/bash
+    groups: "{{ item.groups | default(omit) }}"
+    append: true
+    state: present
+    create_home: true
+  loop: "{{ user_management_users }}"
+  loop_control:
+    label: "{{ item.name }}"
+  tags: [user_management_users]
+
+- name: Create SSH directory
+  ansible.builtin.file:
+    path: "/home/{{ item.name }}/.ssh"
+    state: directory
+    owner: "{{ item.name }}"
+    group: "{{ item.name }}"
+    mode: '0700'
+  loop: "{{ user_management_users }}"
+  when: item.ssh_key is defined
+  tags: [user_management_users, ssh]
+
+- name: Add SSH key
+  ansible.builtin.copy:
+    content: "{{ lookup('file', item.ssh_key) }}"
+    dest: "/home/{{ item.name }}/.ssh/authorized_keys"
+    owner: "{{ item.name }}"
+    group: "{{ item.name }}"
+    mode: '0600'
+  loop: "{{ user_management_users }}"
+  when: item.ssh_key is defined
+  tags: [user_management_users, ssh]
+
+- name: Configure sudo privileges
+  ansible.builtin.template:
+    src: sudoers.j2
+    dest: "/etc/sudoers.d/{{ item.name }}"
+    owner: root
+    group: root
+    mode: '0440'
+  loop: "{{ user_management_users }}"
+  when: item.sudo is defined or item.nopasswd_reboot is defined
+  loop_control:
+    loop_var: item
+  vars:
+    user: "{{ item }}"
+  tags: [user_management_users, sudo]

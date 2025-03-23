@@ -1,0 +1,32 @@
+---
+- name: Optimize System Performance for Nginx
+  block:
+    - name: Increase file descriptor limits
+      ansible.builtin.lineinfile:
+        path: /etc/security/limits.conf
+        line: "{{ item }}"
+        state: present
+      loop:
+        - "nginx soft nofile 65535"
+        - "nginx hard nofile 65535"
+
+    - name: Set kernel parameters for optimized networking
+      ansible.posix.sysctl:
+        name: "{{ item.key }}"
+        value: "{{ item.value }}"
+        state: present
+        reload: true
+      loop:
+        - { key: "net.core.somaxconn", value: "65535" }
+        - { key: "net.ipv4.tcp_max_syn_backlog", value: "65536" }
+        - { key: "net.ipv4.tcp_fin_timeout", value: "30" }
+        - { key: "net.ipv4.tcp_keepalive_time", value: "300" }
+        - { key: "net.ipv4.tcp_keepalive_intvl", value: "30" }
+        - { key: "net.ipv4.tcp_keepalive_probes", value: "5" }
+        - { key: "vm.swappiness", value: "10" }
+        - { key: "vm.max_map_count", value: "262144" }
+        - { key: "fs.file-max", value: "2097152" }
+
+    - name: Reload systemd limits
+      ansible.builtin.command: "sysctl -p"
+      changed_when: false

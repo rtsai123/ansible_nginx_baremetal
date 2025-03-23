@@ -1,0 +1,15 @@
+worker_processes {{ webserver_nginx_worker_processes }};
+
+events {
+    worker_connections 1024;
+}
+
+http {
+    server {
+        listen {{ webserver_nginx_port }};
+        location / {
+            root /var/www/html;
+            index index.html index.nginx-debian.html;
+        }
+    }
+}

@@ -1,0 +1,8 @@
+---
+- name: Run preflight checks for log forwarding
+  ansible.builtin.include_tasks: preflight.yml
+  tags: [log_forwarding, preflight]
+
+- name: Install and configure log forwarding (e.g., Promtail)
+  ansible.builtin.include_tasks: install.yml
+  tags: [log_forwarding, install]
