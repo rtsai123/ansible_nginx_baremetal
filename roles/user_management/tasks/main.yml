@@ -10,7 +10,8 @@
   loop: "{{ user_management_users }}"
   loop_control:
     label: "{{ item.name }}"
-  tags: [user_management_users]
+  tags:
+    - user_management_users
 
 - name: Create SSH directory
   ansible.builtin.file:
@@ -21,7 +22,9 @@
     mode: '0700'
   loop: "{{ user_management_users }}"
   when: item.ssh_key is defined
-  tags: [user_management_users, ssh]
+  tags:
+    - user_management_users
+    - ssh_create_dir
 
 - name: Add SSH key
   ansible.builtin.copy:
@@ -32,7 +35,9 @@
     mode: '0600'
   loop: "{{ user_management_users }}"
   when: item.ssh_key is defined
-  tags: [user_management_users, ssh]
+  tags:
+    - user_management_users
+    - ssh_create_key
 
 - name: Configure sudo privileges
   ansible.builtin.template:
@@ -47,4 +52,6 @@
     loop_var: item
   vars:
     user: "{{ item }}"
-  tags: [user_management_users, sudo]
+  tags:
+    - user_management_users
+    - sudo_create

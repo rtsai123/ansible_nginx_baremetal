@@ -1,5 +1,5 @@
 ---
-- name: Optimize System Performance for Nginx
+- name: Optimize System Performance for tuning
   block:
     - name: Set kernel parameters for optimized networking
       ansible.posix.sysctl:
@@ -17,6 +17,8 @@
         - { key: "vm.swappiness", value: "10" }
         - { key: "vm.max_map_count", value: "262144" }
         - { key: "fs.file-max", value: "2097152" }
+      tags:
+        - system_tuning
 
     - name: Reload systemd
       ansible.builtin.systemd:

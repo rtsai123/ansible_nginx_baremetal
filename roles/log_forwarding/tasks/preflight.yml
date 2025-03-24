@@ -4,7 +4,9 @@
     name: ["curl", "gpg"]
     state: present
     update_cache: true
-  tags: [log_forwarding, dependencies]
+  tags:
+    - log_forwarding
+    - dependencies
 
 - name: Wait for unattended-upgrades to finish
   ansible.builtin.shell: |
@@ -13,46 +15,59 @@
       sleep 5
     done
   changed_when: false
-  tags: [log_forwarding, wait_for_upgrades]
+  tags:
+    - log_forwarding
+    - wait_for_upgrades
 
 - name: Ensure CA certificates are up to date
   ansible.builtin.apt:
     name: ca-certificates
     state: present
     update_cache: true
-  tags: [log_forwarding, ca_cert]
+  tags:
+    - log_forwarding
+    - ca_cert
 
 - name: Download Grafana GPG key in ASCII format
   ansible.builtin.get_url:
     url: https://apt.grafana.com/gpg.key
     dest: /tmp/grafana.asc
     mode: '0644'
-  tags: [log_forwarding, gpg_ascii]
+  tags:
+    - log_forwarding
+    - gpg_ascii
 
 - name: Convert Grafana GPG key to binary format
   ansible.builtin.command: >
     gpg --dearmor -o /etc/apt/keyrings/grafana.gpg /tmp/grafana.asc
   args:
     creates: /etc/apt/keyrings/grafana.gpg
-  tags: [log_forwarding, gpg_binary]
+  tags:
+    - log_forwarding
+    - gpg_binary
 
 - name: Add Grafana APT repository
   ansible.builtin.apt_repository:
     repo: "deb [signed-by=/etc/apt/keyrings/grafana.gpg] https://apt.grafana.com stable main"
     state: present
     filename: grafana
-  tags: [log_forwarding, add_grafana_apt]
+  tags:
+    - log_forwarding
+    - add_grafana_apt
 
 - name: Update APT cache
   ansible.builtin.apt:
     update_cache: true
-  tags: [log_forwarding, update_apt_cache]
+  tags:
+    - log_forwarding
+    - update_apt_cache
 
 - name: Ensure promtail group exists
   ansible.builtin.group:
     name: promtail
     system: true
-  tags: [log_forwarding]
+  tags:
+    - log_forwarding
 
 - name: Ensure promtail user exists
   ansible.builtin.user:
@@ -61,4 +76,5 @@
     system: true
     shell: /usr/sbin/nologin
     create_home: false
-  tags: [log_forwarding]
+  tags:
+    - log_forwarding

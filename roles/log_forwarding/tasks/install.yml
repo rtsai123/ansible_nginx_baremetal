@@ -3,7 +3,9 @@
   ansible.builtin.apt:
     name: promtail
     state: present
-  tags: [log_forwarding, install]
+  tags:
+    - log_forwarding
+    - install
 
 - name: Ensure Promtail state directory exists
   ansible.builtin.file:
@@ -12,7 +14,9 @@
     owner: promtail
     group: promtail
     mode: '0755'
-  tags: [log_forwarding, ensure_position_file]
+  tags:
+    - log_forwarding
+    - ensure_position_file
 
 - name: Ensure Promtail positions file exists
   ansible.builtin.file:
@@ -21,7 +25,9 @@
     owner: promtail
     group: promtail
     mode: '0644'
-  tags: [log_forwarding, ensure_position_file]
+  tags:
+    - log_forwarding
+    - ensure_position_file
 
 - name: Deploy Promtail configuration
   ansible.builtin.template:
@@ -31,7 +37,9 @@
     group: root
     mode: '0644'
   notify: Enable and start promtail
-  tags: [log_forwarding, deploy_config]
+  tags:
+    - log_forwarding
+    - deploy_config
 
 - name: Ensure Promtail is running and enabled
   ansible.builtin.systemd:
@@ -39,4 +47,6 @@
     enabled: true
     state: started
   when: ansible_virtualization_type != "docker"
-  tags: [log_forwarding, enable]
+  tags:
+    - log_forwarding
+    - enable
