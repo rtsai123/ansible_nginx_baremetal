@@ -52,7 +52,7 @@ Update the `inventory.ini` file for your server:
 ### Option 1: Using SSH key
 
 ```ini
-[remote_servers]
+[remote_servers_key]
 myserver ansible_host=1.2.3.4 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/id_rsa
 ```
 
@@ -65,7 +65,7 @@ make provision-remote-key
 ### Option 2: Using password-based SSH
 
 ```ini
-[remote_servers]
+[remote_servers_pwd]
 myserver ansible_host=1.2.3.4 ansible_user=ubuntu ansible_ssh_pass=yourpassword ansible_become_pass=yourpassword
 ```
 
