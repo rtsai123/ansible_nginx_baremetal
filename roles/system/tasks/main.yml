@@ -28,5 +28,7 @@
         - { key: "fs.file-max", value: "2097152" }
 
     - name: Reload systemd limits
-      ansible.builtin.command: "sysctl -p"
+      ansible.builtin.systemd:
+        daemon_reload: true
+      become: true
       changed_when: false

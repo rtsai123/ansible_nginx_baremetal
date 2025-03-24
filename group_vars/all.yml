@@ -1,8 +1,7 @@
 ---
-log_forwarding:
-  loki_url: "http://10.0.2.2:3100/loki/api/v1/push"
-  positions_dir: /var/lib/promtail
-  positions_file: /var/lib/promtail/positions.yaml
+log_forwarding_loki_url: "http://10.0.2.2:3100/loki/api/v1/push"
+log_forwarding_positions_dir: /var/lib/promtail
+log_forwarding_positions_file: /var/lib/promtail/positions.yaml
 
 user_management_users:
   - name: devops
