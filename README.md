@@ -59,7 +59,7 @@ myserver ansible_host=1.2.3.4 ansible_user=ubuntu ansible_ssh_private_key_file=~
 Then run the provisioning playbook:
 
 ```bash
-make provision-remote_key
+make provision-remote-key
 ```
 
 ### Option 2: Using password-based SSH
@@ -72,7 +72,7 @@ myserver ansible_host=1.2.3.4 ansible_user=ubuntu ansible_ssh_pass=yourpassword 
 Then run the provisioning playbook:
 
 ```bash
-make provision-remote_pwd
+make provision-remote-pwd
 ```
 
 ---
