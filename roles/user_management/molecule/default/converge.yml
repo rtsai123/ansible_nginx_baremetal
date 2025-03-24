@@ -1,5 +1,6 @@
 ---
 - name: Converge
   hosts: all
+  become: true
   roles:
-    - role: user_management
+    - role: ../../../user_management

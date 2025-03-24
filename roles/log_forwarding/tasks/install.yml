@@ -7,7 +7,7 @@
 
 - name: Ensure Promtail state directory exists
   ansible.builtin.file:
-    path: "{{ log_forwarding.positions_dir }}"
+    path: "{{ log_forwarding_positions_dir }}"
     state: directory
     owner: promtail
     group: promtail
@@ -16,7 +16,7 @@
 
 - name: Ensure Promtail positions file exists
   ansible.builtin.file:
-    path: "{{ log_forwarding.positions_file }}"
+    path: "{{ log_forwarding_positions_file }}"
     state: touch
     owner: promtail
     group: promtail
@@ -38,4 +38,5 @@
     name: promtail
     enabled: true
     state: started
+  when: ansible_virtualization_type != "docker"
   tags: [log_forwarding, enable]

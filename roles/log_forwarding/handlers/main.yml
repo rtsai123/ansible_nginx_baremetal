@@ -3,3 +3,4 @@
     name: promtail
     enabled: true
     state: started
+  when: ansible_virtualization_type != "docker"

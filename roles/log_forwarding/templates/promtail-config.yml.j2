@@ -3,10 +3,10 @@ server:
   grpc_listen_port: 0
 
 positions:
-  filename: "{{ log_forwarding.positions_file }}"
+  filename: "{{ log_forwarding_positions_file }}"
 
 clients:
-  - url: "{{ log_forwarding.loki_url }}"
+  - url: "{{ log_forwarding_loki_url }}"
 
 scrape_configs:
   - job_name: nginx

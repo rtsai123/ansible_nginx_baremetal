@@ -1,15 +1,6 @@
 ---
 - name: Optimize System Performance for Nginx
   block:
-    - name: Increase file descriptor limits
-      ansible.builtin.lineinfile:
-        path: /etc/security/limits.conf
-        line: "{{ item }}"
-        state: present
-      loop:
-        - "nginx soft nofile 65535"
-        - "nginx hard nofile 65535"
-
     - name: Set kernel parameters for optimized networking
       ansible.posix.sysctl:
         name: "{{ item.key }}"
@@ -27,6 +18,8 @@
         - { key: "vm.max_map_count", value: "262144" }
         - { key: "fs.file-max", value: "2097152" }
 
-    - name: Reload systemd limits
-      ansible.builtin.command: "sysctl -p"
+    - name: Reload systemd
+      ansible.builtin.systemd:
+        daemon_reload: true
+      become: true
       changed_when: false

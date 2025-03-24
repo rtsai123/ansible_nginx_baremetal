@@ -9,10 +9,11 @@
     - installation
 
 - name: Start and enable Nginx
-  ansible.builtin.service:
+  ansible.builtin.systemd:
     name: nginx
     state: started
     enabled: true
+  when: ansible_virtualization_type != "docker"
   tags:
     - webserver
     - service

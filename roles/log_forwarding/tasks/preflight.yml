@@ -51,14 +51,14 @@
 - name: Ensure promtail group exists
   ansible.builtin.group:
     name: promtail
-    system: yes
+    system: true
   tags: [log_forwarding]
 
 - name: Ensure promtail user exists
   ansible.builtin.user:
     name: promtail
     group: promtail
-    system: yes
+    system: true
     shell: /usr/sbin/nologin
-    create_home: no
+    create_home: false
   tags: [log_forwarding]
