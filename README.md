@@ -4,53 +4,105 @@ This project uses Ansible to provision a bare-metal (or VM) Ubuntu 24.04 system,
 
 ---
 
-## 📦 Requirements
+## ⚙️ Prerequisites
 
-Install the following tools:
+- Python 3.10+
+- Ansible 9+
+- `make` utility
+- Access to a remote Ubuntu 24.04 bare metal machine
+- SSH access (either via key or password)
 
-- Python 3.10+ (with `venv`)
-- Ansible 9.x+ (`pip install "ansible>=9,<10"`)
-- Molecule (`pip install molecule[docker]`)
-- Docker (for Molecule)
-- Vagrant (for VM-based local testing)
-- VirtualBox (if using Vagrant on Mac)
-- SSH access to your target bare metal or remote server
-
----
-
-## 🚀 Setup on macOS/Linux
-
-```bash
-make deps           # Setup Python virtualenv with Ansible
-source .venv/bin/activate
-make lint           # Lint the Ansible playbooks
-```
+### Optional for local development/testing:
+- macOS (tested)
+- VirtualBox
+- Vagrant
+- Docker (for Molecule role tests)
 
 ---
 
-## 🧪 Local Dev & Testing Options
+## 🏗️ Setup Instructions
 
-### 1. Vagrant VM (Ubuntu 24.04)
-
-```bash
-make vagrant-up     # Boots VM and provisions it
-```
-
-### 2. Run against your own machine (bare metal Ubuntu)
+Install dependencies and set up Python virtual environment:
 
 ```bash
-make deploy-local   # Uses localhost with connection=local
-```
-
-### 3. Deploy to remote machine
-
-Edit `inventory.ini` with your server’s info, then run:
-
-```bash
-make deploy-remote
+make deps
 ```
 
 ---
+
+## 🔧 Configuration Overrides
+
+Customize global variables in `group_vars/all.yml`.
+
+**Important: Update your Loki endpoint URL here** so Promtail knows where to send logs:
+
+```yaml
+log_forwarding:
+  loki_url: "http://your-loki-instance:3100/loki/api/v1/push"
+```
+
+Other tuning parameters (like `nginx` port, worker processes, rlimits, log format) are also configurable in this file.
+
+---
+
+## 🚀 Running Against a Remote Server
+
+Update the `inventory.ini` file for your server:
+
+### Option 1: Using SSH key
+
+```ini
+[remote_servers]
+myserver ansible_host=1.2.3.4 ansible_user=ubuntu ansible_ssh_private_key_file=~/.ssh/id_rsa
+```
+
+Then run the provisioning playbook:
+
+```bash
+make provision-remote_key
+```
+
+### Option 2: Using password-based SSH
+
+```ini
+[remote_servers]
+myserver ansible_host=1.2.3.4 ansible_user=ubuntu ansible_ssh_pass=yourpassword ansible_become_pass=yourpassword
+```
+
+Then run the provisioning playbook:
+
+```bash
+make provision-remote_pwd
+```
+
+---
+
+## 📁 Role Breakdown
+
+| Role             | Description |
+|------------------|-------------|
+| `system`         | Applies kernel sysctl tuning and system limits |
+| `webserver`      | Installs, configures, and tunes Nginx |
+| `firewall`       | Configures UFW for HTTP and SSH |
+| `log_forwarding` | Installs and configures Promtail for Loki |
+| `user_management`| Creates and configures users `devops` and `bob` |
+
+---
+
+## 🧪 Local Testing (Optional)
+
+### Vagrant (Local Bare Metal Simulation)
+
+```bash
+make dev-rebuild   # Destroys and recreates the Vagrant VM
+make provision     # Runs Ansible against the Vagrant box
+```
+
+⚠️ **Note**: Local Vagrant testing has only been verified on **macOS (Intel)** with **VirtualBox**. Apple Silicon (M1/M2) or non-macOS systems may require `Vagrantfile` modifications.
+
+---
+
+## 🧪 Molecule + Linting (Optional)
 
 ## ✅ Role-Level Molecule Testing
 
@@ -83,17 +135,50 @@ Each role includes:
 
 ```
 .
-├── site.yml                # Entrypoint playbook
-├── roles/
-│   ├── webserver/
-│   ├── log_forwarder/
-│   ├── user_management/
-│   └── system_tuning/
-├── group_vars/             # Per-group overrides
+ansible_nginx_baremetal/
+├── Makefile
+├── README.md
+├── ansible.cfg
 ├── inventory.ini
-├── Makefile                # Helper tasks
-├── Vagrantfile
-└── README.md
+├── group_vars/
+│   └── all.yml                 # Global variable overrides (e.g. Loki URL)
+├── roles/
+│   ├── firewall/
+│   │   ├── defaults/
+│   │   ├── handlers/
+│   │   ├── meta/
+│   │   ├── tasks/
+│   │   ├── templates/
+│   │   └── molecule/
+│   ├── log_forwarding/
+│   │   ├── defaults/
+│   │   ├── handlers/
+│   │   ├── meta/
+│   │   ├── tasks/
+│   │   ├── templates/
+│   │   └── molecule/
+│   ├── system/
+│   │   ├── defaults/
+│   │   ├── handlers/
+│   │   ├── meta/
+│   │   ├── tasks/
+│   │   └── molecule/
+│   ├── user_management/
+│   │   ├── defaults/
+│   │   ├── handlers/
+│   │   ├── meta/
+│   │   ├── tasks/
+│   │   └── molecule/
+│   └── webserver/
+│       ├── defaults/
+│       ├── handlers/
+│       ├── meta/
+│       ├── tasks/
+│       ├── templates/
+│       └── molecule/
+├── site.yml                    # Main playbook entry point
+└── Vagrantfile                 # For optional local testing (macOS/VirtualBox)
+
 ```
 
 ---
@@ -108,94 +193,5 @@ Each role includes:
 ✅ Promtail & Nginx templating  
 ✅ Custom sysctl tuning  
 
----
-
-Happy automating! 🛠️
-
-
----
-
-### Re-run Ansible on Vagrant
-
-If Vagrant is already running and you just want to re-apply your Ansible playbook:
-
-```bash
-make rerun-ansible
-```
-
-
----
-
-### Cleaning up Vagrant environment
-
-If you're getting SSH fingerprint mismatch or host key verification errors:
-
-```bash
-make clean
-```
-
-This removes:
-- The `.venv` environment
-- Vagrant machine
-- Old SSH known_hosts entries (`[127.0.0.1]:2222`, `[127.0.0.1]:50022`)
-
-
----
-
-## 🛠️ Running Against a Remote Server
-
-To provision a remote Ubuntu 24.04 bare metal server:
-
-### 1. ✏️ Edit the `inventory.ini`
-
-Replace with the IP or domain of your remote host:
-
-```ini
-[remote_servers]
-baremetal-test ansible_host=<REMOTE_IP> ansible_user=root ansible_ssh_private_key_file=~/.ssh/id_rsa
-
-[remote_servers:vars]
-ansible_become=true
-ansible_become_method=sudo
-```
-
----
-
-### 2. ✅ Install dependencies (one-time setup)
-
-```bash
-make deps
-```
-
-This sets up a Python virtual environment and installs all required Ansible collections and roles.
-
----
-
-### 3. 🚀 Provision the remote machine
-
-```bash
-make provision-remote
-```
-
-This uses the `remote_servers` inventory group and provisions the remote host with:
-- Nginx
-- UFW firewall (ports 22, 80)
-- Promtail (forwarding to Loki)
-- User management (`devops`, `bob`)
-
----
-
-### 4. 🧪 Optional: Lint check
-
-```bash
-make lint-all
-```
-
-Checks for Ansible and YAML best practices using `ansible-lint` and `yamllint`.
-
----
-
-**Tested on:** Ubuntu 24.04  
-**Idempotent:** ✅  
-**SSH required:** Port 22 must be open on the remote machine
-
+## 🙏 Thank You
+Thanks again for the opportunity — it was a pleasure working on this take-home!
