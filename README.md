@@ -8,7 +8,7 @@ This project uses Ansible to provision a bare-metal (or VM) Ubuntu 24.04 system,
 
 Install the following tools:
 
-- Python 3.9+ (with `venv`)
+- Python 3.10+ (with `venv`)
 - Ansible 9.x+ (`pip install "ansible>=9,<10"`)
 - Molecule (`pip install molecule[docker]`)
 - Docker (for Molecule)
